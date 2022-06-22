@@ -1,6 +1,53 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Tertiary">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5">MDCSTEC TOOLS</MudText>
+        <MudSpacer />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="@DrawerVariant.Mini" Elevation="1" Color="Color.Dark">
+        @* <MudDrawerHeader Class="blue darken-4 shades-text text-white">
+        </MudDrawerHeader>*@
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-1 pt-1">
+            @Body
+            <MudScrollToTop OnScroll="OnScroll">
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.ArrowUpward" Color="Color">Go to top</MudButton>
+            </MudScrollToTop>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    bool _drawerOpen = true;
+    private MudTheme Theme = new MudTheme();
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    Color Color = Color.Success;
+    private void OnScroll(ScrollEventArgs e)
+    {
+        Color = (e.FirstChildBoundingClientRect.Top * -1) switch
+        {
+            var x when x < 500 => Color.Primary,
+            var x when x < 1500 => Color.Secondary,
+            var x when x < 2500 => Color.Tertiary,
+            _ => Color.Error
+        };
+    }
+}
+
+@*<div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
@@ -15,3 +62,4 @@
         </article>
     </main>
 </div>
+*@

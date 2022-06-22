@@ -1,0 +1,335 @@
+﻿@page "/txtdata"
+@using System.Dynamic
+
+@inject IJSRuntime JSRuntime
+@inject ISnackbar Snackbar
+
+<PageTitle>File txt</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudText Typo="Typo.h3" GutterBottom="true" Align="Align.Center">EB TO EXCEL</MudText>
+    </MudItem>
+    <MudItem Class="rounded-lg" xs="12">
+        <MudPaper @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Height="125px" Outlined="true" Class="@DragClass" Elevation="10">
+            @if (!Clearing)
+            {
+                <InputFile OnChange="OnInputFileChanged" multiple class="absolute mud-width-full mud-height-full overflow-hidden z-2" style="opacity:0;" accept=".EB, .txt" />
+            }
+            <MudText Typo="Typo.h6">Drag and drop files here or click MAX 10 FILES</MudText>
+            @foreach (var file in loadedFiles)
+            {
+                <MudChip Color="Color.Dark" Text="@file.Name" />
+            }
+        </MudPaper>
+        <MudProgressLinear hidden="@(!loadedFiles.Any())" Color="Color.Tertiary" Striped="true" Size="Size.Large" Indeterminate="true" Class="my-7" />
+    </MudItem>
+    <MudItem Class="rounded-lg" xs="12">
+
+        <MudTable Items="@TxtItems" Dense="true" Hover="true" Bordered="true" Striped="true" Filter="new Func<JObject,bool>(FilterFunc)" Elevation="10">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">EB TO EXCEL</MudText>
+                <MudSpacer />
+                <MudButton OnClick="ExportToExcel" Disabled="@(TxtItems.Count() <= 0)" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
+                <MudButton OnClick="ClearTable" Disabled="@(TxtItems.Count() <= 0)" Color="Color.Error" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Clear">Clear Table</MudButton>
+                <MudSpacer />
+                <MudTextField @bind-Value="@_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+
+            <HeaderContent>
+                @foreach (var prop in props)
+                {
+                <MudTh>@prop</MudTh>
+                }
+               @* @if (TxtItems2.Count() > 0)
+                {
+                    @foreach (var property1 in TxtItems2)
+                    {
+                        @foreach (var property in property1)
+                        {
+                            <MudTh>@property.Key</MudTh>
+                        }
+                    }
+                }*@
+
+            </HeaderContent>
+            <RowTemplate>
+                @foreach (var prop in props)
+                {
+                <MudTd DataLabel="@prop">@context.GetValue(prop)</MudTd>
+                }
+               @* @if (TxtItems2.Count() > 0)
+                {
+                    @foreach (var property1 in TxtItems2)
+                    {
+                        @foreach (var property in property1)
+                        {
+                            <MudTd DataLabel="@property.Key">@property.Value</MudTd>
+                        }
+                    }
+                }*@
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+        @*@if (TxtItems.Count() > 0)
+        {
+        <GridComponent Item="dictionary" Items="TxtItems2" Item1="dictionary" Items1="TxtItems2" TableName="EB DATA" DynamicObj="true"></GridComponent>
+
+        <br />
+        }*@
+
+    </MudItem>
+</MudGrid>
+
+
+@code {
+
+    private bool Clearing = false;
+    private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
+    private string DragClass = DefaultDragClass;
+    private List<IBrowserFile> loadedFiles = new();
+    private string _searchString = string.Empty;
+
+    private JObject JObject = new();
+    //private dynamic dynamicObjt;// = new();
+
+    //private Type componentType;//= new();
+    //                           //private IDictionary<string, object> dynamicObjt = new();// ...;
+
+    private List<JObject> TxtItems = new();
+    private List<JObject> TxtItemsPre = new();
+    //private List<dynamic> TxtItems1 = new();
+    //private List<Dictionary<string, object>> TxtItems2 = new();
+    //private Dictionary<string, object> dictionary = new();
+    private List<string> props = new();
+    private List<string> Tagnumbers = new();
+
+
+    protected override void OnInitialized()
+    {
+    }
+
+
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        ClearDragClass();
+        var files = e.GetMultipleFiles();
+        foreach (var file in files)
+        {
+            //file.Name.Replace(" ", string.Empty);
+            //if (file.Name.Split(".")[1] == "EB" || file.Name.Split(".")[1] == "txt")
+            loadedFiles.Add(file);
+        }
+
+        Upload();
+    }
+
+    private async Task Clear()
+    {
+        Clearing = true;
+        loadedFiles.Clear();
+        ClearDragClass();
+        await Task.Delay(100);
+        Clearing = false;
+    }
+
+    private async void Upload()
+    {
+        //Upload the files here
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        int fileExist = 0;
+        long MAXALLOWEDSIZE = 250000000;
+
+        foreach (var file in loadedFiles)
+        {
+            Stream stream = file.OpenReadStream(MAXALLOWEDSIZE);
+            MemoryStream ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+
+            stream.Close();
+            var outputFileString = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+
+            String[] fileContents = Regex.Split(outputFileString, @"{SYSTEM ENTITY (.*)}");
+
+            fileContents = fileContents.Skip(1).ToArray();
+
+            foreach (var fileContent in fileContents)
+            {
+                if (!fileContent.Any(ext => "()".EndsWith(ext)))
+                {
+
+                    string strContent = fileContent.Replace("&T", "POINTTYPE=").Replace("&N", "TAGNUMBER=").Replace("\r\n", ",").Trim(',');
+
+                    String[] strContents = strContent.Split(",");
+
+                    JObject jObject = new();
+                    //var dynamicObject = new ExpandoObject() as IDictionary<string, Object>;
+                    //dynamic sampleObject = new ExpandoObject();
+
+                    //dictionary = new();
+
+                    foreach (string str in strContents)
+                    {
+                        if (str.Split("=")[0].Trim() == "TAGNUMBER")
+                        {
+                            if (!Tagnumbers.Contains(str.Split("=")[1].Trim()))
+                                Tagnumbers.Add(str.Split("=")[1].Trim());
+                            else
+                            {
+                                fileExist++;
+                                goto repeat;
+                            }
+                        }
+
+                        jObject.Add(new JProperty(str.Split("=")[0].Trim(), new JValue(str.Split("=")[1].Trim())));
+
+                        //dynamicObject.Add(str.Split("=")[0].Trim(), str.Split("=")[1].Trim());
+
+                        //dictionary.Add(str.Split("=")[0].Trim(), str.Split("=")[1].Trim());
+
+                        //AddProperty(sampleObject, str.Split("=")[0].Trim(), str.Split("=")[1].Trim());
+
+                        if (!props.Contains(str.Split("=")[0].Trim()))
+                        {
+                            props.Add(str.Split("=")[0].Trim());
+                        }
+                    }
+
+                    //Console.WriteLine(jObject);
+                    //Console.WriteLine(todo);
+                    //Console.WriteLine(jsonDoc);
+                    //foreach (var property in dictionary)
+                    //{
+                    //    Console.WriteLine(property.Key + ": " + property.Value);
+                    //    //Console.WriteLine(property);
+                    //}
+
+                    //TxtItems1.Add(dynamicObject);
+                    //TxtItems2.Add(dictionary);
+                    TxtItemsPre.Add(jObject);
+                }
+            repeat:;
+            }
+        }
+
+        // comple JObject with not contain Property
+        foreach (var textitem in TxtItemsPre)
+        {
+            foreach (var prop in props)
+            {
+                if (!textitem.ContainsKey(prop))
+                {
+                    textitem.Add(new JProperty(prop, new JValue("")));
+                }
+            }
+            TxtItems.Add(textitem);
+        }
+
+        if (fileExist > 0)
+            Snackbar.Add("" + fileExist + " File(s) already exist", Severity.Info);
+
+        //////Console.WriteLine(TxtItems1);
+        //foreach (var property1 in TxtItems2)
+        //{
+        //    foreach (var property in property1)
+        //            {
+        //                Console.WriteLine(property.Key + ": " + property.Value);
+        //                //Console.WriteLine(property.Key);
+        //            }
+        //}
+
+        await Clear();
+
+        this.StateHasChanged();
+    }
+
+    //private void AddProperty(ExpandoObject expando, string propertyName, object propertyValue)
+    //{
+    //    // ExpandoObject supports IDictionary so we can extend it like this
+    //    dynamic expandoDict = expando as IDictionary<string, object>;
+    //    if (expandoDict.ContainsKey(propertyName))
+    //        expandoDict[propertyName] = propertyValue;
+    //    else
+    //        expandoDict.Add(propertyName, propertyValue);
+
+    //    Console.WriteLine("expandoDict " + expandoDict);
+    //}
+
+    private void ClearTable()
+    {
+        TxtItems.Clear();
+        props.Clear();
+        Tagnumbers.Clear();
+        TxtItemsPre.Clear();
+        this.StateHasChanged();
+    }
+
+    private void SetDragClass()
+    {
+        DragClass = $"{DefaultDragClass} mud-border-primary";
+    }
+
+    private void ClearDragClass()
+    {
+        DragClass = DefaultDragClass;
+    }
+
+    private bool FilterFunc(JObject jObject)
+    {
+        //Valeur = _searchString;
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+        foreach (var prop in props)
+        {
+            if (jObject.GetValue(prop).ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
+    }
+
+    public async Task ExportToExcel()
+    {
+
+        using (var workbook = new XLWorkbook())
+        {
+            IXLWorksheet worksheet = workbook.Worksheets.Add("System");
+            var p = 1;
+            foreach (var prop in props)
+            {
+                worksheet.Cell(1, p).Value = prop;
+                p++;
+            }
+
+
+            for (int i = 1; i <= props.Count(); i++)
+            {
+                worksheet.Cell(1, i).Style.Font.Bold = true;
+            }
+
+            int index = 1;
+            foreach (var txtItem in TxtItems)
+            {
+                int i = 1;
+                foreach (var prop in props)
+                {
+                    worksheet.Cell(index + 1, i).Value = txtItem.GetValue(prop).ToString();
+                    i++;
+                }
+                index++;
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+
+                var fileName = "Output_TXT_Files_" + DateTime.Now.ToString("dd-MM-yyyy") + " .xlsx";
+                await JSRuntime.InvokeAsync
+                <object>
+                    ("saveAsFile", fileName, Convert.ToBase64String(content));
+            }
+        }
+    }
+}

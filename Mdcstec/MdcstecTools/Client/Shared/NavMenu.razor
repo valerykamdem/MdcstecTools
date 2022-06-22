@@ -1,4 +1,18 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿<MudNavMenu Rounded="true" Bordered="true" Color="Color.Tertiary" Margin="Margin.Normal" Class="mud-width-full">
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Inherit">DASHBOARD</MudNavLink>
+    <MudNavLink Href="txtdata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Analytics" IconColor="Color.Inherit">EB TO EXCEL</MudNavLink>
+   @* <MudNavLink Href="txtdata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.TextSnippet">EB TO EXCEL</MudNavLink>
+    <MudNavLink Href="txtdata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.TextSnippet">EXCEL TO EB</MudNavLink>*@
+    <MudNavLink Href="htmldata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Article" IconColor="Color.Inherit">HMI ANALYSIS</MudNavLink>
+   
+    <MudNavGroup Title="XML ANALYSIS" Expanded="true" Icon="@Icons.Material.Filled.TextSnippet" IconColor="Color.Inherit">
+        <MudNavLink Href="xmldata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Assessment" IconColor="Color.Inherit">XML SYSTEM ANALYSIS</MudNavLink>
+        <MudNavLink Href="generate-pdf-files"  Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Print" IconColor="Color.Inherit">GENERATE PDF</MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>
+
+
+@*<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">MdcstecTools</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -36,4 +50,4 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
-}
+}*@

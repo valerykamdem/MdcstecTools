@@ -1,0 +1,140 @@
+﻿@typeparam TItem;
+@inject IJSRuntime JSRuntime
+
+
+<MudText Typo="Typo.h4" GutterBottom="true" Align="Align.Center">@TableName</MudText>
+
+<MudDataGrid T="TItem" MultiSelection="false" Items="@Items" Sortable="true" Filterable="true" QuickFilter="@_quickFilter" Elevation="10"
+             Hideable="true" Hover="true" Dense="true" Bordered="true" Striped="true" ReadOnly="true" EditMode="DataGridEditMode.Form" EditTrigger="DataGridEditTrigger.OnRowClick">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">@TableName</MudText>
+        <MudSpacer />
+        @*<MudButton OnClick="ExportToPdf" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Pdf Download</MudButton>*@
+        @switch (@ExportFile)
+        {
+            case "Excel":
+                <MudButton OnClick="ExportToExcel" Disabled="@(Items.Count() <= 0)" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
+                <MudButton OnClick="ClearTable" Disabled="@(Items.Count() <= 0)" Color="Color.Error" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Clear">Clear Table</MudButton>
+                <MudSpacer />
+                break;
+            case "Pdf":
+                <MudButton OnClick="ExportToPdf" Disabled="@(Items.Count() <= 0)" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Pdf Download</MudButton>
+                <MudSpacer />
+                break;
+            default:
+                <MudButton OnClick="ExportToExcel" Disabled="@(Items.Count() <= 0)" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
+                <MudButton OnClick="ClearTable" Disabled="@(Items.Count() <= 0)" Color="Color.Error" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Clear">Clear Table</MudButton>
+                <MudSpacer />
+                break;
+        }
+
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+
+    <Columns>
+        
+            @foreach (var propertyInfo in typeof(TItem).GetProperties())
+            {
+                <Column T="TItem" Field="@propertyInfo.Name" />
+            }
+
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="TItem" />
+    </PagerContent>
+</MudDataGrid>
+
+@code
+{
+
+    [Parameter]
+    public TItem? Item { get; set; }
+    [Parameter]
+    public List<TItem>? Items { get; set; }
+    [Parameter]
+    public List<string>? Props { get; set; }
+    [Parameter]
+    public string? TableName { get; set; }
+    /*Excel or Pdf*/
+    [Parameter]
+    public string? ExportFile { get; set; }
+    [Parameter]
+    public string? BlockName { get; set; }
+
+    private string _searchString = string.Empty;
+
+
+    private void ClearTable()
+    {
+        Items.Clear();
+        //Props.Clear();
+        this.StateHasChanged();
+    }
+
+    // quick filter - filter gobally across multiple columns with the same input
+    private Func<TItem, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        foreach (string prop in Props)
+        {
+            if (x.GetType().GetProperty(prop).GetValue(x, null).ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    };
+
+    public async Task ExportToExcel()
+    {
+
+        using (var workbook = new XLWorkbook())
+        {
+
+            IXLWorksheet worksheet = workbook.Worksheets.Add("HMI-ANALYSIS");
+            var p = 1;
+            foreach (var prop in Props)
+            {
+                worksheet.Cell(1, p).Value = prop;
+                p++;
+            }
+
+
+            for (int i = 1; i <= Props.Count(); i++)
+            {
+                worksheet.Cell(1, i).Style.Font.Bold = true;
+            }
+
+            int index = 1;
+            foreach (var item in Items)
+            {
+                int i = 1;
+                foreach (string prop in Props)
+                {
+                    worksheet.Cell(index + 1, i).Value = item.GetType().GetProperty(prop).GetValue(item, null);
+                    i++;
+                }
+                index++;
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+
+                var fileName = "Output_HTML_Files_" + DateTime.Now.ToString("dd-MM-yyyy") + " .xlsx";
+                await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(content));
+            }
+        }
+    }
+
+
+    public async Task ExportToPdf()
+    {
+        string TbName = BlockName + " - " + TableName;
+        await JSRuntime.InvokeAsync<object>("tableScript", Items, TbName, BlockName);
+    }
+
+}

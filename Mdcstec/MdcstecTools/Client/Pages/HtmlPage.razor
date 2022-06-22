@@ -1,0 +1,133 @@
+﻿@page "/htmldata"
+
+@using System.Diagnostics
+@inject IJSRuntime JSRuntime
+@inject ISnackbar Snackbar
+
+<PageTitle>File html</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudText Typo="Typo.h3" GutterBottom="true" Align="Align.Center">HMI ANALYSIS</MudText>
+    </MudItem>
+    <MudItem Class="rounded-lg" xs="12">
+        <MudPaper @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Height="125px" Outlined="true" Class="@DragClass" Elevation="10">
+            @if (!Clearing)
+            {
+                <InputFile OnChange="OnInputFileChanged" multiple class="absolute mud-width-full mud-height-full overflow-hidden z-2" style="opacity:0;" accept=".html, .htm" />
+            }
+            <MudText Typo="Typo.h6">Drag and drop files here or click MAX 10 FILES</MudText>
+            @foreach (var file in loadedFiles)
+            {
+                <MudChip Color="Color.Dark" Text="@file.Name" />
+            }
+        </MudPaper>
+        <MudProgressLinear hidden="@(!loadedFiles.Any())" Color="Color.Tertiary" Striped="true" Size="Size.Large" Indeterminate="true" Class="my-7" />
+    </MudItem>
+    <MudItem Class="rounded-lg" xs="12">
+        <GridComponent Item="HtmlItem" Items="HtmlItems" Props="props" TableName="HMI ANALYSIS"></GridComponent>
+    </MudItem>
+</MudGrid>
+
+
+
+@code {
+
+    private bool Clearing = false;
+    private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
+    private string DragClass = DefaultDragClass;
+    private List<IBrowserFile> loadedFiles = new();
+    //private string? _searchString;
+    private List<string?> props = new();
+    private HtmlItem HtmlItem = new();
+    private List<HtmlItem> HtmlItems = new();
+
+
+    protected override void OnInitialized()
+    {
+        foreach (var propertyInfo in typeof(HtmlItem).GetProperties())
+        {
+            props.Add(propertyInfo.Name);
+        }
+    }
+
+
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        ClearDragClass();
+        var files = e.GetMultipleFiles();
+
+        foreach (var file in files)
+        {
+            //if (file.Name.Split(".")[1] == "htm" || file.Name.Split(".")[1] == "html")
+            loadedFiles.Add(file);
+        }
+
+        Upload();
+    }
+
+    private async Task Clear()
+    {
+        Clearing = true;
+        loadedFiles.Clear();
+        ClearDragClass();
+        await Task.Delay(100);
+        Clearing = false;
+    }
+
+    private async void Upload()
+    {
+        //Upload the files here
+
+        //HtmlItems.Clear();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        int fileExist = 0;
+        long MAXALLOWEDSIZE = 250000000;
+
+        foreach (var file in loadedFiles)
+        {
+
+            Stream stream = file.OpenReadStream(MAXALLOWEDSIZE);
+            MemoryStream ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+
+            stream.Close();
+            var outputFileString = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+
+            HtmlItem htmlItem = new();
+
+            htmlItem.FileName = file.Name.Split(".")[0];
+
+            String[] fileContents = outputFileString.Split("Text?Title:");
+
+            fileContents = fileContents.Skip(1).ToArray();
+
+            foreach (var fileContent in fileContents)
+            {
+                htmlItem.Title = fileContent.Split(";")[0];
+            }
+
+            if (!HtmlItems.Any(x => x.Title == htmlItem.Title && x.FileName == htmlItem.FileName))
+                HtmlItems.Add(htmlItem);
+            else
+                fileExist++;
+        }
+
+        if (fileExist > 0)
+            Snackbar.Add("" + fileExist + " File(s) already exist", Severity.Info);
+
+        await Clear();
+
+        this.StateHasChanged();
+    }
+
+    private void SetDragClass()
+    {
+        DragClass = $"{DefaultDragClass} mud-border-primary";
+    }
+
+    private void ClearDragClass()
+    {
+        DragClass = DefaultDragClass;
+    }
+}

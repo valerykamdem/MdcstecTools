@@ -1,0 +1,36 @@
+﻿@page "/generate-pdf-files"
+@using System.IO;
+@*@using FileDirectories*@
+@inject HttpClient Http
+@*@inject IFileService FileService*@
+@inject IJSRuntime JSRuntime
+
+<PageTitle>PDF File</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true" Align="Align.Center">Coming soon</MudText>
+
+@code {
+
+    protected override async void OnInitialized()
+    {
+
+        //FileDirectory fileDirectory = new();
+
+        //fileDirectory.GetFiles();
+
+        string[] files = Directory.GetFiles(@"C:\Users\valery.kamdem\Projects\Michel\masques\XML", "*.xml");
+        foreach (var file in files)
+        {
+            Console.WriteLine(file);
+        }
+
+        //var response = await Http.GetStringAsync(@"C:\Users\valery.kamdem\Projects\Michel\masques\XML\PEF570.xml");
+
+        //Console.WriteLine(response);
+
+        await JSRuntime.InvokeAsync<object>("fileScript");
+
+        //Console.WriteLine(FileService.GetAllFiles());
+    }
+
+}
