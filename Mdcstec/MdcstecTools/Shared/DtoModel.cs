@@ -27,7 +27,7 @@
 
         public string? GraphicalForm { get; set; }
 
-        public List<Vertex>? Vertex { get; set; }
+        //public List<Vertex>? Vertex { get; set; }
     }
 
     public class ConnectionsDto

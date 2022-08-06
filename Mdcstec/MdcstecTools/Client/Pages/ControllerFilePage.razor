@@ -1,22 +1,25 @@
-﻿@page "/htmldata"
+﻿@page "/controller-files"
 
 @using System.Diagnostics
 @inject IJSRuntime JSRuntime
 @inject ISnackbar Snackbar
+@attribute [Authorize]
 
-<PageTitle>File html</PageTitle>
+<PageTitle>Controller File</PageTitle>
 
+<MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">CONTROLLER ANALYSIS</MudText>
 <MudGrid>
-    <MudItem xs="12">
-        <MudText Typo="Typo.h3" GutterBottom="true" Align="Align.Center">HMI ANALYSIS</MudText>
-    </MudItem>
+   @* <MudItem xs="12">
+        <MudText Typo="Typo.h4" GutterBottom="true" Align="Align.Center">CONTROLLER ANALYSIS</MudText>
+    </MudItem>*@
+    
     <MudItem Class="rounded-lg" xs="12">
         <MudPaper @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Height="125px" Outlined="true" Class="@DragClass" Elevation="10">
             @if (!Clearing)
             {
                 <InputFile OnChange="OnInputFileChanged" multiple class="absolute mud-width-full mud-height-full overflow-hidden z-2" style="opacity:0;" accept=".html, .htm" />
             }
-            <MudText Typo="Typo.h6">Drag and drop files here or click MAX 10 FILES</MudText>
+            <MudText Typo="Typo.h6">Drag and drop files here or click MAX 100 FILES</MudText>
             @foreach (var file in loadedFiles)
             {
                 <MudChip Color="Color.Dark" Text="@file.Name" />
@@ -25,7 +28,7 @@
         <MudProgressLinear hidden="@(!loadedFiles.Any())" Color="Color.Tertiary" Striped="true" Size="Size.Large" Indeterminate="true" Class="my-7" />
     </MudItem>
     <MudItem Class="rounded-lg" xs="12">
-        <GridComponent Item="HtmlItem" Items="HtmlItems" Props="props" TableName="HMI ANALYSIS"></GridComponent>
+        <GridComponent Item="HtmlItem" Items="HtmlItems" Props="props" TableName="CONTROLLER ANALYSIS"></GridComponent>
     </MudItem>
 </MudGrid>
 
@@ -55,7 +58,8 @@
     private void OnInputFileChanged(InputFileChangeEventArgs e)
     {
         ClearDragClass();
-        var files = e.GetMultipleFiles();
+        int MAXALLOWEDFILE = 100;       
+        var files = e.GetMultipleFiles(MAXALLOWEDFILE);
 
         foreach (var file in files)
         {

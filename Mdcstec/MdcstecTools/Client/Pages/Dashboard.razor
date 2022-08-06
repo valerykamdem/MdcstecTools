@@ -1,56 +1,57 @@
 ﻿@page "/"
+@attribute [Authorize]
 
 <PageTitle>Dashboard</PageTitle>
 
 <MudGrid>
     <MudItem xs="12">
-        <MudText Typo="Typo.h3" GutterBottom="true" Align="Align.Center">MDCSTEC TOOLS</MudText>
+        <MudText Typo="Typo.h4" GutterBottom="true" Align="Align.Center">MDCSTEC TOOLS</MudText>
     </MudItem>
             <MudItem xs="12" sm="6" md="3">
-                <MudLink Href="txtdata" Underline="Underline.None">
+                <MudLink Href="hw-files" Underline="Underline.None">
                 <MudPaper Elevation="2" Class="d-flex flex-row pt-6 pb-4" Style="height: 125px;">
                     <MudIcon Icon="@Icons.Material.Filled.Analytics" Color="Color.Primary" Style="font-size: 6rem;" Class="mx-4" />
                     <div>
-                        <MudText Class="d-flex flex-row" Typo="Typo.h5"><b>TXT DATA</b></MudText>
-                        <MudText Class="d-flex flex-row" Typo="Typo.h6">TXT DATA</MudText>
+                        <MudText Class="d-flex flex-row" Typo="Typo.h5"><b>HW ANALYSIS</b></MudText>
+                        <MudText Class="d-flex flex-row" Typo="Typo.h6">HW Data</MudText>
                     </div>
                 </MudPaper>
                 </MudLink>
                 <MudExpansionPanels>
                     <MudExpansionPanel Text="More info" MaxHeight="75" Class="mud-theme-primary">
-                        TXT DATA ANALYSIS.
+                        HW ANALYSIS
                     </MudExpansionPanel>
                 </MudExpansionPanels>
             </MudItem>
             <MudItem xs="12" sm="6" md="3">
-                <MudLink Href="htmldata" Underline="Underline.None">
+                <MudLink Href="controller-files" Underline="Underline.None">
                 <MudPaper Elevation="2" Class="d-flex flex-row pt-6 pb-4" Style="height: 125px;">
                     <MudIcon Icon="@Icons.Material.Filled.Article" Color="Color.Secondary" Style="font-size: 6rem;" Class="mx-4" />
                     <div>
-                        <MudText Class="d-flex flex-row" Typo="Typo.h5"><b>HTML DATA</b></MudText>
-                        <MudText Class="d-flex flex-row" Typo="Typo.h6">HTML DATA</MudText>
+                        <MudText Class="d-flex flex-row" Typo="Typo.h5"><b>CONTROLLER ANALYSIS</b></MudText>
+                        <MudText Class="d-flex flex-row" Typo="Typo.h6">Controller Data</MudText>
                     </div>
                 </MudPaper>
                 </MudLink>
                 <MudExpansionPanels>
                     <MudExpansionPanel Text="More info" MaxHeight="75" Class="mud-theme-secondary">
-                        HTML DATA ANALYSIS
+                        CONTROLLER ANALYSIS
                     </MudExpansionPanel>
                 </MudExpansionPanels>
             </MudItem>
             <MudItem xs="12" sm="6" md="3">
-                 <MudLink Href="xmldata" Underline="Underline.None">
+                 <MudLink Href="config-files" Underline="Underline.None">
                 <MudPaper Elevation="2" Class="d-flex flex-row pt-6 pb-4" Style="height: 125px;">
                     <MudIcon Icon="@Icons.Material.Filled.Assessment" Color="Color.Tertiary" Style="font-size: 6rem;" Class="mx-4" />
                     <div>
-                        <MudText Class="d-flex flex-row" Typo="Typo.h5"><b>XML DATA</b></MudText>
-                        <MudText Class="d-flex flex-row" Typo="Typo.h6">XML DATA</MudText>
+                        <MudText Class="d-flex flex-row" Typo="Typo.h5"><b>CONFIG ANALYSIS</b></MudText>
+                        <MudText Class="d-flex flex-row" Typo="Typo.h6">Config Data</MudText>
                     </div>
                 </MudPaper>
                 </MudLink>
                 <MudExpansionPanels>
                     <MudExpansionPanel Text="More info" MaxHeight="75" Class="mud-theme-tertiary">
-                        XML DATA ANALYSIS
+                        CONFIG ANALYSIS
                     </MudExpansionPanel>
                 </MudExpansionPanels>
             </MudItem>
