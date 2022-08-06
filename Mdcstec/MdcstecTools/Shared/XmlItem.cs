@@ -71,14 +71,14 @@ namespace MdcstecTools.Shared
 		[XmlElement(ElementName = "BaseTemplateName")]
 		public string? BaseTemplateName { get; set; }
 
-		[XmlElement(ElementName = "CreateType")]
-		public object? CreateType { get; set; }
+		//[XmlElement(ElementName = "CreateType")]
+		//public object? CreateType { get; set; }
 
 		[XmlElement(ElementName = "Attribute")]
 		public int Attribute { get; set; }
 
-		[XmlElement(ElementName = "Coord")]
-		public Coord? Coord { get; set; }
+		//[XmlElement(ElementName = "Coord")]
+		//public Coord? Coord { get; set; }
 
 		[XmlElement(ElementName = "LifeCycleState")]
 		public string? LifeCycleState { get; set; }
@@ -86,8 +86,8 @@ namespace MdcstecTools.Shared
 		[XmlElement(ElementName = "AssignedTo")]
 		public string? AssignedTo { get; set; }
 
-		[XmlElement(ElementName = "Container")]
-		public object? Container { get; set; }
+		//[XmlElement(ElementName = "Container")]
+		//public object? Container { get; set; }
 	}
 
 	[Serializable, XmlRoot(ElementName = "Parameter")]
@@ -173,8 +173,8 @@ namespace MdcstecTools.Shared
 		[XmlElement(ElementName = "GraphicalForm")]
 		public string? GraphicalForm { get; set; }
 
-		[XmlElement(ElementName = "Vertex")]
-		public List<Vertex>? Vertex { get; set; }
+		//[XmlElement(ElementName = "Vertex")]
+		//public List<Vertex>? Vertex { get; set; }
 	}
 
 	[Serializable, XmlRoot(ElementName = "Connections")]

@@ -1,0 +1,153 @@
+﻿@page "/config-files"
+@inherits ConfigFileBase
+
+<PageTitle>Config File</PageTitle>
+
+<MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">CONFIG FILE ANALYSIS</MudText>
+<MudGrid>
+    @*<MudItem xs="12">
+        <MudText Typo="Typo.h4" GutterBottom="true" Align="Align.Center">CONFIG FILE ANALYSIS</MudText>
+    </MudItem>*@
+    <MudItem Class="rounded-lg" xs="12">
+        <MudPaper @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Height="125px" Outlined="true" Class="@DragClass">
+            @if (!Clearing)
+            {
+                <InputFile OnChange="OnInputFileChanged" _bl_2="" multiple class="absolute mud-width-full mud-height-full overflow-hidden z-2" style="opacity:0;" accept=".xml, .cnf" />
+            }
+            <MudText Typo="Typo.h6">Drag and drop files here or click MAX 100 FILES</MudText>
+            @foreach (var file in loadedFiles)
+            {
+                <MudChip Color="Color.Dark" Text="@file.Name" />
+            }
+        </MudPaper>
+
+        <MudProgressLinear hidden="@(!loadedFiles.Any())" Color="Color.Primary" Striped="true" Size="Size.Large" Indeterminate="true" Class="my-7" />
+    </MudItem>
+    <MudItem Class="rounded-l-lg" xs="12" sm="3">
+        <MudText Typo="Typo.h5" GutterBottom="true" Align="Align.Center">Config File Schema</MudText>
+        <MudPaper Class="d-flex align-center mud-width-full py-8" Elevation="10" style="overflow: auto;">
+            <MudList Clickable="true">
+                @foreach (var multiBlock in @MultiBlocks)
+                {
+                    <MudListItem Icon="@Icons.Filled.AccountTree" IconColor="Color.Primary" Text="@multiBlock.Block.BlockDef.BlockName" OnClick="@(() => Onclick("BlockDtos", BlockDtos, multiBlock))">
+                        <NestedList>
+                            <MudListItem Icon="@Icons.Filled.AdminPanelSettings" IconColor="Color.Secondary" Text="Blocks" OnClick="@(() => Onclick("BlockDtos", BlockDtos, multiBlock))" />
+                            <MudListItem Icon="@Icons.Filled.ConnectWithoutContact" IconColor="Color.Secondary" Text="Parameters" OnClick="@(() => Onclick("Parameters", ParameterDtos, multiBlock))" />
+                            <MudListItem Icon="@Icons.Filled.PrivateConnectivity" IconColor="Color.Secondary" Text="Connections" OnClick="@(() => Onclick("Connections", ConnectionDtos, multiBlock))" />
+
+                            <MudListItem Icon="@Icons.Filled.Dashboard" IconColor="Color.Primary" Text="ErdbVersion" OnClick="@(() => Onclick("ErdbVersion", multiBlock.ErdbVersion, multiBlock))" />
+                            <MudListItem Icon="@Icons.Filled.Security" IconColor="Color.Success" Text="@multiBlock.Block.BlockDef.BlockName" OnClick="@(() => Onclick("Block", multiBlock.Block, multiBlock))" />
+                            <MudListItem Icon="@Icons.Filled.AdminPanelSettings" IconColor="Color.Warning" Text="EmbBlock" InitiallyExpanded="true">
+                                <NestedList>
+                                    @foreach (var embBlock in multiBlock.Block.EmbBlocks.Block)
+                                    {
+                                        <MudListItem Icon="@Icons.Material.Filled.Security" IconColor="Color.Info" Text="@embBlock.BlockDef.BlockName" OnClick="@(() => Onclick("Block", embBlock, multiBlock))" />
+                                    }
+                                </NestedList>
+                            </MudListItem>
+                        </NestedList>
+                    </MudListItem>
+                }
+                @* <MudListSubheader>
+                <MudText Typo="Typo.h5"><b>@BlockName</b></MudText>
+                </MudListSubheader>*@
+                @if (@ShowGrid)
+                {
+                    @*<MudListItem Icon="@Icons.Filled.AdminPanelSettings" IconColor="Color.Secondary" Text="Blocks" OnClick="@(() => onclick("BlockDtos", BlockDtos))" />
+                <MudListItem Icon="@Icons.Filled.ConnectWithoutContact" IconColor="Color.Secondary" Text="Parameters" OnClick="@(() => onclick("Parameters", ParameterDtos))" />
+                <MudListItem Icon="@Icons.Filled.PrivateConnectivity" IconColor="Color.Secondary" Text="Connections" OnClick="@(() => onclick("Connections", ConnectionDtos))" />
+
+                <MudListItem Icon="@Icons.Filled.Dashboard" IconColor="Color.Primary" Text="ErdbVersion" OnClick="@(() => onclick("ErdbVersion", MultiBlock.ErdbVersion))" />
+                <MudListItem Icon="@Icons.Filled.Security" IconColor="Color.Success" Text="@MultiBlock.Block.BlockDef.BlockName" OnClick="@(() => onclick("Block", MultiBlock.Block))" />
+                <MudListItem Icon="@Icons.Filled.AdminPanelSettings" IconColor="Color.Warning" Text="EmbBlock" InitiallyExpanded="true">
+                <NestedList>
+                @foreach (var embBlock in MultiBlock.Block.EmbBlocks.Block)
+                {
+                <MudListItem Icon="@Icons.Material.Filled.Security" IconColor="Color.Info" Text="@embBlock.BlockDef.BlockName" OnClick="@(() => onclick("Block", embBlock))" />
+                }
+                </NestedList>
+                </MudListItem>*@
+                }
+            </MudList>
+        </MudPaper>
+    </MudItem>
+    <MudItem Class="rounded-r-lg" xs="12" sm="9">
+
+        @switch (@_param)
+        {
+            case "BlockDtos":
+                <GridComponent Item="BlockDefDto" Items="BlockDefDtos" Props="BlockDefDtoProps" TableName="Block" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+
+                <br />
+                <GridComponent Item="BlockDto" Items="BlockDtos" Props="BlockDtoProps" TableName="All Blocks" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+
+                <br />
+                break;
+            case "Parameters":
+                <GridComponent Item="BlockDefDto" Items="BlockDefDtos" Props="BlockDefDtoProps" TableName="Block" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+                <br />
+                <GridComponent Item="ParameterDto" Items="ParameterDtos" Props="ParameterDtoProps" TableName="All Parameters" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+                <br />
+                @foreach (var paramDto in ParametersDtos)
+                {
+                    @if (paramDto != null)
+                    {
+                        <GridComponent Item="Parameter" Items="paramDto.Parameters.Parameter" Props="ParameterProps" TableName="@paramDto.BlockName" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+                        <br />
+                    }
+                }
+                break;
+            case "Connections":
+                <GridComponent Item="BlockDefDto" Items="BlockDefDtos" Props="BlockDefDtoProps" TableName="Block" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+                <br />
+                <GridComponent Item="ConnectionDto" Items="ConnectionDtos" Props="ConnectionDtoProps" TableName="All Connections" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+                <br />
+                @foreach (var connDto in ConnectionsDtos)
+                {
+                    @if (connDto != null)
+                    {
+                        <GridComponent Item="Connection" Items="connDto.Connections.Connection" Props="ConnectionProps" TableName="@connDto.BlockName" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+                        <br />
+                    }
+                }
+                break;
+            case "ErdbVersion":
+                <GridComponent Item="BlockDefDto" Items="BlockDefDtos" Props="BlockDefDtoProps" TableName="Block" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+                <br />
+                <GridComponent Item="ErdbVersion" Items="ErdbVersions" Props="ErdbVersionProps" TableName="Erdb Version" ExportFile="Pdf" BlockName="@BlockName"></GridComponent>
+                <br />
+                break;
+            case "Block":
+                <GridComponent Item="BlockDefDto" Items="BlockDefDtos" Props="BlockDefDtoProps" TableName="BlockDef" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                <GridComponent Item="BlockDef" Items="BlockDefs" Props="BlockDefProps" TableName="BlockDef" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                <GridComponent Item="Coord" Items="Coords" Props="CoordProps" TableName="Coord" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                @if (Parameters != null)
+                {
+                    <GridComponent Item="Parameter" Items="Parameters.Parameter" Props="ParameterProps" TableName="Parameters" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                }
+                @if (SymbolAttrs != null)
+                {
+                    <GridComponent Item="SymbolAttr" Items="SymbolAttrs.SymbolAttr" Props="SymbolAttrProps" TableName="SymbolAttrs" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                }
+                @if (Connections != null)
+                {
+                    <GridComponent Item="Connection" Items="Connections.Connection" Props="ConnectionProps" TableName="Connections" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                    @*<GridComponent Item="Vertex" Items="VertexList" Props="VertexProps" TableName="Vertex" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />*@
+                }
+                else
+                {
+                    <GridComponent Item="Connection" Items="null" Props="ConnectionProps" TableName="Connections" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                }
+                break;
+            default:
+                @*<GridComponent Item="BlockDefDto" Items="BlockDefDtos" Props="BlockDefDtoProps" TableName="Block" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                <GridComponent Item="BlockDto" Items="BlockDtos" Props="BlockDtoProps" TableName="All Blocks" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                <GridComponent Item="ParameterDto" Items="ParameterDtos" Props="ParameterDtoProps" TableName="All Parameters" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />
+                <GridComponent Item="ConnectionDto" Items="ConnectionDtos" Props="ConnectionDtoProps" TableName="All Connections" ExportFile="Pdf" BlockName="@BlockName"></GridComponent> <br />*@
+                break;
+        }
+    </MudItem>
+
+</MudGrid>
+
+
