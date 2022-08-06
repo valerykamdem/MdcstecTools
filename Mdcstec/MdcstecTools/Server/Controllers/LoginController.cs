@@ -29,28 +29,35 @@ namespace MdcstecTools.Server.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(login.Email, login.Password, false, false);
+                //var result = await _signInManager.PasswordSignInAsync(login.Email, login.Password, false, false);
 
-                if (!result.Succeeded) return BadRequest(new LoginResponse { Successful = false, Error = "Username and password are invalid." });
+                //if (!result.Succeeded) return BadRequest(new LoginResponse { Successful = false, Error = "Username and password are invalid." });
 
-                var claims = new[]
+                if (login.Email != "admin@app.com" || login.Password != "Admin1#")
                 {
-                    new Claim(ClaimTypes.Name, login.Email)
-                };
+                    return BadRequest(new LoginResponse { Successful = false, Error = "Username and password are invalid." });
+                }
+                else
+                {
+                    var claims = new[]
+                    {
+                        new Claim(ClaimTypes.Name, login.Email)
+                    };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtConfig:SecretKey"]));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                var expiry = DateTime.UtcNow.Add(TimeSpan.Parse(_configuration["JwtConfig:ExpiryTimeFrame"]));
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtConfig:SecretKey"]));
+                    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                    var expiry = DateTime.UtcNow.Add(TimeSpan.Parse(_configuration["JwtConfig:ExpiryTimeFrame"]));
 
-                var token = new JwtSecurityToken(
-                    _configuration["JwtConfig:Issuer"],
-                    _configuration["JwtConfig:Audience"],
-                    claims,
-                    expires: expiry,
-                    signingCredentials: creds
-                );
+                    var token = new JwtSecurityToken(
+                        _configuration["JwtConfig:Issuer"],
+                        _configuration["JwtConfig:Audience"],
+                        claims,
+                        expires: expiry,
+                        signingCredentials: creds
+                    );
 
-                return Ok(new LoginResponse { Successful = true, Token = new JwtSecurityTokenHandler().WriteToken(token) });
+                    return Ok(new LoginResponse { Successful = true, Token = new JwtSecurityTokenHandler().WriteToken(token) });
+                }
             }
             return BadRequest(false);
         }
