@@ -4,14 +4,15 @@
 @inject HttpClient Http
 @*@inject IFileService FileService*@
 @inject IJSRuntime JSRuntime
+@attribute [Authorize]
 
 <PageTitle>PDF File</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true" Align="Align.Center">Coming soon</MudText>
+<MudText Typo="Typo.h4" GutterBottom="true" Align="Align.Center">Coming soon</MudText>
 
 @code {
 
-    protected override async void OnInitialized()
+    protected override void OnInitialized()
     {
 
         //FileDirectory fileDirectory = new();

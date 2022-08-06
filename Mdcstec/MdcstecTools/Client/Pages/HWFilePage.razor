@@ -1,36 +1,39 @@
-﻿@page "/txtdata"
+﻿@page "/hw-files"
 @using System.Dynamic
 
 @inject IJSRuntime JSRuntime
 @inject ISnackbar Snackbar
 
-<PageTitle>File txt</PageTitle>
+@attribute [Authorize]
 
+<PageTitle>HW File</PageTitle>
+
+<MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">HW FILE</MudText>
 <MudGrid>
-    <MudItem xs="12">
-        <MudText Typo="Typo.h3" GutterBottom="true" Align="Align.Center">EB TO EXCEL</MudText>
-    </MudItem>
+    @*<MudItem xs="12">
+        <MudText Typo="Typo.h4" GutterBottom="true" Align="Align.Center">HW FILE</MudText>
+    </MudItem>*@
     <MudItem Class="rounded-lg" xs="12">
         <MudPaper @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass" Height="125px" Outlined="true" Class="@DragClass" Elevation="10">
             @if (!Clearing)
             {
                 <InputFile OnChange="OnInputFileChanged" multiple class="absolute mud-width-full mud-height-full overflow-hidden z-2" style="opacity:0;" accept=".EB, .txt" />
             }
-            <MudText Typo="Typo.h6">Drag and drop files here or click MAX 10 FILES</MudText>
+            <MudText Typo="Typo.h6">Drag and drop files here or click MAX 100 FILES</MudText>
             @foreach (var file in loadedFiles)
             {
                 <MudChip Color="Color.Dark" Text="@file.Name" />
             }
         </MudPaper>
-        <MudProgressLinear hidden="@(!loadedFiles.Any())" Color="Color.Tertiary" Striped="true" Size="Size.Large" Indeterminate="true" Class="my-7" />
+        <MudProgressLinear hidden="@(!loadedFiles.Any())" Color="Color.Primary" Striped="true" Size="Size.Large" Indeterminate="true" Class="my-7" />
     </MudItem>
     <MudItem Class="rounded-lg" xs="12">
 
         <MudTable Items="@TxtItems" Dense="true" Hover="true" Bordered="true" Striped="true" Filter="new Func<JObject,bool>(FilterFunc)" Elevation="10">
             <ToolBarContent>
-                <MudText Typo="Typo.h6">EB TO EXCEL</MudText>
+                <MudText Typo="Typo.h6">HW FILE</MudText>
                 <MudSpacer />
-                <MudButton OnClick="ExportToExcel" Disabled="@(TxtItems.Count() <= 0)" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
+                <MudButton OnClick="ExportToExcel" Disabled="@(TxtItems.Count() <= 0)" Color="Color.Primary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
                 <MudButton OnClick="ClearTable" Disabled="@(TxtItems.Count() <= 0)" Color="Color.Error" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Clear">Clear Table</MudButton>
                 <MudSpacer />
                 <MudTextField @bind-Value="@_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
@@ -93,16 +96,9 @@
     private string _searchString = string.Empty;
 
     private JObject JObject = new();
-    //private dynamic dynamicObjt;// = new();
-
-    //private Type componentType;//= new();
-    //                           //private IDictionary<string, object> dynamicObjt = new();// ...;
 
     private List<JObject> TxtItems = new();
     private List<JObject> TxtItemsPre = new();
-    //private List<dynamic> TxtItems1 = new();
-    //private List<Dictionary<string, object>> TxtItems2 = new();
-    //private Dictionary<string, object> dictionary = new();
     private List<string> props = new();
     private List<string> Tagnumbers = new();
 
@@ -115,7 +111,9 @@
     private void OnInputFileChanged(InputFileChangeEventArgs e)
     {
         ClearDragClass();
-        var files = e.GetMultipleFiles();
+        int MAXALLOWEDFILE = 100;       
+        var files = e.GetMultipleFiles(MAXALLOWEDFILE);
+
         foreach (var file in files)
         {
             //file.Name.Replace(" ", string.Empty);
@@ -165,10 +163,6 @@
                     String[] strContents = strContent.Split(",");
 
                     JObject jObject = new();
-                    //var dynamicObject = new ExpandoObject() as IDictionary<string, Object>;
-                    //dynamic sampleObject = new ExpandoObject();
-
-                    //dictionary = new();
 
                     foreach (string str in strContents)
                     {
@@ -185,29 +179,12 @@
 
                         jObject.Add(new JProperty(str.Split("=")[0].Trim(), new JValue(str.Split("=")[1].Trim())));
 
-                        //dynamicObject.Add(str.Split("=")[0].Trim(), str.Split("=")[1].Trim());
-
-                        //dictionary.Add(str.Split("=")[0].Trim(), str.Split("=")[1].Trim());
-
-                        //AddProperty(sampleObject, str.Split("=")[0].Trim(), str.Split("=")[1].Trim());
-
                         if (!props.Contains(str.Split("=")[0].Trim()))
                         {
                             props.Add(str.Split("=")[0].Trim());
                         }
                     }
 
-                    //Console.WriteLine(jObject);
-                    //Console.WriteLine(todo);
-                    //Console.WriteLine(jsonDoc);
-                    //foreach (var property in dictionary)
-                    //{
-                    //    Console.WriteLine(property.Key + ": " + property.Value);
-                    //    //Console.WriteLine(property);
-                    //}
-
-                    //TxtItems1.Add(dynamicObject);
-                    //TxtItems2.Add(dictionary);
                     TxtItemsPre.Add(jObject);
                 }
             repeat:;
@@ -229,16 +206,6 @@
 
         if (fileExist > 0)
             Snackbar.Add("" + fileExist + " File(s) already exist", Severity.Info);
-
-        //////Console.WriteLine(TxtItems1);
-        //foreach (var property1 in TxtItems2)
-        //{
-        //    foreach (var property in property1)
-        //            {
-        //                Console.WriteLine(property.Key + ": " + property.Value);
-        //                //Console.WriteLine(property.Key);
-        //            }
-        //}
 
         await Clear();
 

@@ -1,0 +1,113 @@
+﻿@page "/logIn"
+@layout LoginLayout
+
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorageService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAuthService AuthService
+
+
+<MudForm Model="@loginRequest">
+    @*<DataAnnotationsValidator />*@
+
+    <MudText Typo="Typo.h5" GutterBottom="true" Align="Align.Center">MDCSTEC</MudText>
+    <MudText Typo="Typo.h4" GutterBottom="true" Align="Align.Center"><b>Sign In</b></MudText>
+
+    @*<MudText>Don't have an account? <MudLink Href="signUp">Sign Up</MudLink></MudText>*@
+     <MudText Typo="Typo.body1" GutterBottom="true" Align="Align.Center">admin@app.com/Admin1#</MudText>
+
+    @if (!string.IsNullOrEmpty(ErrorMesssage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true" Class="my-2">@ErrorMesssage</MudAlert>
+    }
+
+    <MudTextField @bind-Value="@loginRequest.Email" Label="Email" Variant="Variant.Outlined" Class="my-6" For="@(() => loginRequest.Email)"
+                  TextChanged="ClearError" />
+
+    <MudTextField @bind-Value="@loginRequest.Password" Label="Password" Variant="Variant.Outlined" InputType="@PasswordInput" TextChanged="ClearError"
+                  Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="TogglePasswordVisibility" For="@(() => loginRequest.Password)" />
+
+    @*<div Class="d-flex justify-space-between align-center">
+    <MudCheckBox T="bool" Label="Remember me?" Color="Color.Primary" Class="ml-n1 my-3"></MudCheckBox>
+    <MudLink Href="/">Forgot pwd?</MudLink>
+    </div>*@
+
+    <br />
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Link="" Size="Size.Large" FullWidth="true" OnClick="@(() => OnValidSubmit(loginRequest))">Sign In</MudButton>
+
+</MudForm>
+
+@code {
+
+    bool PasswordVisibility;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    private LoginRequest loginRequest = new ();
+    private string ErrorMesssage { get; set; }
+    private string Year { get; set; }
+
+
+    [CascadingParameter]
+    Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo(NavigationManager.BaseUri + "");
+        }
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        DateTime myDT = DateTime.Now;
+        Year = myDT.Year.ToString();
+        return base.OnInitializedAsync();
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        @if (PasswordVisibility)
+        {
+            PasswordVisibility = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            PasswordVisibility = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+
+    private void ClearError()
+    {
+        ErrorMesssage = string.Empty;
+        StateHasChanged();
+    }
+
+    private async Task OnValidSubmit(LoginRequest loginRequest)
+    {
+
+        var response = await AuthService.Login(loginRequest);
+        if(response.Successful)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            ErrorMesssage = response.Error;
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add(" Error Login", Severity.Error);
+            StateHasChanged();
+        }
+    }
+}
+

@@ -2,7 +2,7 @@
 @inject IJSRuntime JSRuntime
 
 
-<MudText Typo="Typo.h4" GutterBottom="true" Align="Align.Center">@TableName</MudText>
+<MudText Typo="Typo.h5" GutterBottom="true" Align="Align.Center">@TableName</MudText>
 
 <MudDataGrid T="TItem" MultiSelection="false" Items="@Items" Sortable="true" Filterable="true" QuickFilter="@_quickFilter" Elevation="10"
              Hideable="true" Hover="true" Dense="true" Bordered="true" Striped="true" ReadOnly="true" EditMode="DataGridEditMode.Form" EditTrigger="DataGridEditTrigger.OnRowClick">
@@ -13,16 +13,16 @@
         @switch (@ExportFile)
         {
             case "Excel":
-                <MudButton OnClick="ExportToExcel" Disabled="@(Items.Count() <= 0)" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
+                <MudButton OnClick="ExportToExcel" Disabled="@(Items.Count() <= 0)" Color="Color.Primary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
                 <MudButton OnClick="ClearTable" Disabled="@(Items.Count() <= 0)" Color="Color.Error" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Clear">Clear Table</MudButton>
                 <MudSpacer />
                 break;
             case "Pdf":
-                <MudButton OnClick="ExportToPdf" Disabled="@(Items.Count() <= 0)" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Pdf Download</MudButton>
+                <MudButton OnClick="ExportToPdf" Disabled="@(Items.Count() <= 0)" Color="Color.Primary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Pdf Download</MudButton>
                 <MudSpacer />
                 break;
             default:
-                <MudButton OnClick="ExportToExcel" Disabled="@(Items.Count() <= 0)" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
+                <MudButton OnClick="ExportToExcel" Disabled="@(Items.Count() <= 0)" Color="Color.Primary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
                 <MudButton OnClick="ClearTable" Disabled="@(Items.Count() <= 0)" Color="Color.Error" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Clear">Clear Table</MudButton>
                 <MudSpacer />
                 break;
