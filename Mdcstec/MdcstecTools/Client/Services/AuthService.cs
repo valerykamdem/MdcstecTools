@@ -37,15 +37,15 @@ namespace MdcstecTools.Client.Services
 
         public async Task<LoginResponse> Login(LoginRequest loginRequest)
         {
-            //var loginAsJson = JsonSerializer.Serialize(loginRequest);
-            //var response = await _httpClient.PostAsync("login", 
-            //    new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
-            //var loginResponse = JsonSerializer.Deserialize<LoginResponse>(
-            //    await response.Content.ReadAsStringAsync(), 
-            //    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var loginAsJson = JsonSerializer.Serialize(loginRequest);
+            var response = await _httpClient.PostAsync("login",
+                new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
+            var loginResponse = JsonSerializer.Deserialize<LoginResponse>(
+                await response.Content.ReadAsStringAsync(),
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            var response = await _httpClient.PostAsJsonAsync("login", loginRequest);
-            var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            //var response = await _httpClient.PostAsJsonAsync("login", loginRequest);
+            //var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
 
             if (!response.IsSuccessStatusCode)
             {
