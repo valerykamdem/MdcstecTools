@@ -434,20 +434,20 @@ namespace MdcstecTools.Client.Pages
                     break;
                 case "Block":
                     BlockDefs.Add(blockObj.BlockDef);
-                    //Coords.Add(blockObj.BlockDef.Coord);
+                    Coords.Add(blockObj.BlockDef.Coord);
                     Parameters = blockObj.Parameters;
                     SymbolAttrs = blockObj.SymbolAttrs;
                     Connections = blockObj.Connections;
-                    //if (Connections != null)
-                    //{
-                    //    foreach (var connection in blockObj.Connections.Connection)
-                    //    {
-                    //        foreach (var vertex in connection.Vertex)
-                    //        {
-                    //            VertexList.Add(vertex);
-                    //        }
-                    //    }
-                    //}
+                    if (Connections != null)
+                    {
+                        foreach (var connection in blockObj.Connections.Connection)
+                        {
+                            foreach (var vertex in connection.Vertex)
+                            {
+                                VertexList.Add(vertex);
+                            }
+                        }
+                    }
                     break;
                 default:
                     // code block
