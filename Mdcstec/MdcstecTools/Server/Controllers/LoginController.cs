@@ -29,17 +29,17 @@ namespace MdcstecTools.Server.Controllers
         {
             if (ModelState.IsValid)
             {
-                //var result = await _signInManager.PasswordSignInAsync(login.Email, login.Password, false, false);
+                var result = await _signInManager.PasswordSignInAsync(login.Email, login.Password, false, false);
 
-                //if (!result.Succeeded) return BadRequest(new LoginResponse { Successful = false, Error = "Username and password are invalid." });
+                if (!result.Succeeded) return BadRequest(new LoginResponse { Successful = false, Error = "Username and password are invalid." });
 
-                if (login.Email != "admin@app.com" || login.Password != "Admin1#")
-                {
-                    return BadRequest(new LoginResponse { Successful = false, Error = "Username and password are invalid." });
-                }
-                else
-                {
-                    var claims = new[]
+                //if (login.Email != "admin@app.com" || login.Password != "Admin1#")
+                //{
+                //    return BadRequest(new LoginResponse { Successful = false, Error = "Username and password are invalid." });
+                //}
+                //else
+                //{
+                var claims = new[]
                     {
                         new Claim(ClaimTypes.Name, login.Email)
                     };
@@ -57,7 +57,7 @@ namespace MdcstecTools.Server.Controllers
                     );
 
                     return Ok(new LoginResponse { Successful = true, Token = new JwtSecurityTokenHandler().WriteToken(token) });
-                }
+                //}
             }
             return BadRequest(false);
         }

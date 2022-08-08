@@ -20,7 +20,7 @@
 
     var docDefinition = {
         pageOrientation: 'landscape',
-        pageSize: 'A2',
+        pageSize: 'A4',
         footer: function (currentPage, pageCount) { return currentPage.toString() + ' of ' + pageCount; },
         //header: function (currentPage, pageCount, pageSize) {
         //    // you can apply any logic and return any valid pdfmake element

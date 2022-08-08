@@ -4,13 +4,13 @@
 
 <MudText Typo="Typo.h5" GutterBottom="true" Align="Align.Center">@TableName</MudText>
 
-<MudDataGrid T="TItem" MultiSelection="false" Items="@Items" Sortable="true" Filterable="true" QuickFilter="@_quickFilter" Elevation="10"
+@*<MudDataGrid T="TItem" MultiSelection="false" Items="@Items" Sortable="true" Filterable="true" QuickFilter="@_quickFilter" Elevation="10"
              Hideable="true" Hover="true" Dense="true" Bordered="true" Striped="true" ReadOnly="true" EditMode="DataGridEditMode.Form" EditTrigger="DataGridEditTrigger.OnRowClick">
     <ToolBarContent>
         <MudText Typo="Typo.h6">@TableName</MudText>
         <MudSpacer />
         @*<MudButton OnClick="ExportToPdf" Color="Color.Tertiary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Pdf Download</MudButton>*@
-        @switch (@ExportFile)
+       @* @switch (@ExportFile)
         {
             case "Excel":
                 <MudButton OnClick="ExportToExcel" Disabled="@(Items.Count() <= 0)" Color="Color.Primary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
@@ -43,7 +43,48 @@
     <PagerContent>
         <MudDataGridPager T="TItem" />
     </PagerContent>
-</MudDataGrid>
+</MudDataGrid>*@
+
+ <MudTable Items="@Items" Dense="true" Hover="true" Bordered="true" Striped="true" Filter="new Func<TItem,bool>(FilterFunc)">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">@TableName</MudText>
+        <MudSpacer />      
+        @switch (@ExportFile)
+        {
+            case "Excel":
+                <MudButton OnClick="ExportToExcel" Disabled="@(Items.Count() <= 0)" Color="Color.Primary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
+                <MudButton OnClick="ClearTable" Disabled="@(Items.Count() <= 0)" Color="Color.Error" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Clear">Clear Table</MudButton>
+                <MudSpacer />
+                break;
+            case "Pdf":
+                <MudButton OnClick="ExportToPdf" Disabled="@(Items.Count() <= 0)" Color="Color.Primary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Pdf Download</MudButton>
+                <MudSpacer />
+                break;
+            default:
+                <MudButton OnClick="ExportToExcel" Disabled="@(Items.Count() <= 0)" Color="Color.Primary" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowDownward" Class="mr-1">Excel Export</MudButton>
+                <MudButton OnClick="ClearTable" Disabled="@(Items.Count() <= 0)" Color="Color.Error" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Clear">Clear Table</MudButton>
+                <MudSpacer />
+                break;
+        }
+          <MudSpacer />
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        @foreach (var propertyInfo in typeof(TItem).GetProperties())
+            {
+                <MudTh><MudTableSortLabel SortBy="new Func<TItem, object>(x=>x.GetType().GetProperty(propertyInfo.Name))">@propertyInfo.Name</MudTableSortLabel></MudTh>
+            }
+    </HeaderContent>
+    <RowTemplate>
+        @foreach (var propertyInfo in typeof(TItem).GetProperties())
+            {
+                <MudTd DataLabel="@propertyInfo.Name">@context.GetType().GetProperty(propertyInfo.Name).GetValue(context, null)</MudTd>
+            }
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
 
 @code
 {
@@ -72,20 +113,33 @@
         this.StateHasChanged();
     }
 
-    // quick filter - filter gobally across multiple columns with the same input
-    private Func<TItem, bool> _quickFilter => x =>
+    //// quick filter - filter gobally across multiple columns with the same input
+    //private Func<TItem, bool> _quickFilter => x =>
+    //{
+    //    if (string.IsNullOrWhiteSpace(_searchString))
+    //        return true;
+
+    //    foreach (string prop in Props)
+    //    {
+    //        if (x.GetType().GetProperty(prop).GetValue(x, null).ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+    //            return true;
+    //    }
+
+    //    return false;
+    //};
+
+    private bool FilterFunc(TItem item)
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
 
-        foreach (string prop in Props)
+        foreach (var prop in Props)
         {
-            if (x.GetType().GetProperty(prop).GetValue(x, null).ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
+            if (item.GetType().GetProperty(prop).GetValue(item, null).ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+               return true;
         }
-
         return false;
-    };
+    }
 
     public async Task ExportToExcel()
     {
@@ -113,7 +167,7 @@
                 int i = 1;
                 foreach (string prop in Props)
                 {
-                    worksheet.Cell(index + 1, i).Value = item.GetType().GetProperty(prop).GetValue(item, null);
+                    worksheet.Cell(index + 1, i).Value = (XLCellValue)item.GetType().GetProperty(prop).GetValue(item, null);
                     i++;
                 }
                 index++;

@@ -61,16 +61,13 @@
             <MudToolBar DisableGutters="true">
                 <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" Class="ml-3" />
                 <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
-                @*<Breadcrumbs RootLinkTitle="Home"></Breadcrumbs>*@
                 <MudSpacer />
-                @*<MudButton Variant="Variant.Text" Link="https://mudblazor.com/" Style="color:#594AE2;">MudBlazor</MudButton>
-                <MudButton Variant="Variant.Text" Link="https://github.com/Garderoben/MudBlazor.Templates" Style="color:#424242;" Class="mr-3">Source Code</MudButton>*@
             </MudToolBar>
         </MudHidden>
         <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
             @Body
             <MudScrollToTop OnScroll="OnScroll">
-                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.ArrowUpward" Color="Color">Go to top</MudButton>
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ArrowUpward" Color="Color">Go to top</MudButton>
             </MudScrollToTop>
         </MudContainer>
     </MudMainContent>
@@ -92,14 +89,14 @@
     };
     
     public string bbDrawerClass = "";
-    public string Year { get; set; }
+    public string? Year { get; set; }
     public bool _drawerOpen = true;
     public bool _themeManagerOpen = false;
+    public string? baseUrl;
 
     private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
     {
-        new BreadcrumbItem("Dashboard", href: "#"),
-        //new BreadcrumbItem("Dashboard", href: "#"),
+         new BreadcrumbItem("Dashboard", href: "/", icon: Icons.Material.Filled.Dashboard),
     };   
 
     void DrawerToggle()
@@ -113,6 +110,23 @@
         Year = myDT.Year.ToString();
 
         //await JSRuntime.InitializeInactivityTimer(DotNetObjectReference.Create(this));
+
+        baseUrl = navigationManager.BaseUri;
+        BuildBreadcrumbsAsync();
+        navigationManager.LocationChanged += OnLocationChanges;
+    }
+
+    void OnLocationChanges(object sender, LocationChangedEventArgs e) => BuildBreadcrumbsAsync();
+
+    private void BuildBreadcrumbsAsync()
+    {
+        string uri = navigationManager.Uri.Replace(baseUrl, " ").Trim();
+
+        _items.RemoveRange(1, _items.Count - 1);
+
+        _items.AddRange(GetBreadcrumbItem(uri));
+
+        StateHasChanged();
     }
 
     public void Logout()
@@ -142,6 +156,30 @@
             _ => Color.Error
         };
     }
+
+    private List<BreadcrumbItem> GetBreadcrumbItem(string uri)
+    {
+        List<BreadcrumbItem> item = new();
+        switch (uri)
+        {
+            case "hw-files":
+                item.Add(new BreadcrumbItem("HW File", href: "/hw-files", icon: Icons.Material.Filled.Analytics));
+                break;
+            case "controller-files":
+                item.Add(new BreadcrumbItem("Controller Analysis", href: "/controller-files", icon: Icons.Material.Filled.Article));
+                break;
+            case "config-files":
+                item.Add(new BreadcrumbItem("Config Analysis", href: "/config-files", icon: Icons.Material.Filled.TextSnippet));
+                item.Add(new BreadcrumbItem("System Config Analysis", href: "/config-files", icon: Icons.Material.Filled.Assessment));
+                break;
+            case "generate-pdf-files":
+                item.Add(new BreadcrumbItem("Config Analysis", href: "/generate-pdf-files", icon: Icons.Material.Filled.TextSnippet));
+                item.Add(new BreadcrumbItem("Generate Pdf", href: "/generate-pdf-files", icon: Icons.Material.Filled.Print));
+                break;
+        }
+
+        return item;
+    }
 }
 
 
@@ -163,7 +201,7 @@
             <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
             @Body
             <MudScrollToTop OnScroll="OnScroll">
-                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.ArrowUpward" Color="Color">Go to top</MudButton>
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ArrowUpward" Color="Color">Go to top</MudButton>
             </MudScrollToTop>
         </MudContainer>
     </MudMainContent>

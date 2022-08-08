@@ -6,7 +6,7 @@ namespace MdcstecTools.Client.Theme
     {
         public MudBlazorAdminDashboard()
         {
-            Palette = new Palette()
+            Palette = new PaletteLight()
             {
                 Primary = Colors.LightGreen.Default,
                 Background = Colors.Grey.Lighten5,
