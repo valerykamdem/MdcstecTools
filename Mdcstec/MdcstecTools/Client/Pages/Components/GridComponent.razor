@@ -72,7 +72,11 @@
     <HeaderContent>
         @foreach (var propertyInfo in typeof(TItem).GetProperties())
             {
+<<<<<<< HEAD
                 <MudTh><MudTableSortLabel SortBy="new Func<TItem, object>(x=>x.GetType().GetProperty(propertyInfo.Name))">@propertyInfo.Name</MudTableSortLabel></MudTh>
+=======
+                <MudTh>@propertyInfo.Name</MudTh>
+>>>>>>> 32f940e70ab43900f5e09fecad3cfa224235fce9
             }
     </HeaderContent>
     <RowTemplate>
